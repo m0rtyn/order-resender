@@ -23,23 +23,23 @@ BUFFER_SIZE = 1024
 # api = tweepy.API(auth)
 
 conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-conn.connect((TCP_IP, TCP_PORT))
+conn.connect(TCP_IP, TCP_PORT)
 conn.send(MESSAGE)
 
-# if conn.recv(BUFFER_SIZE) == b"{'info':'connected'}\r\n":
-#   print('connected')
-#   conn.send(b"{'command':'orders'}")
-#   data = conn.recv(BUFFER_SIZE)
-#   print(data)
+if conn.recv(BUFFER_SIZE) == b"{'info':'connected'}\r\n":
+  print('connected')
+  conn.send(b"{'command':'orders'}")
+  data = conn.recv(BUFFER_SIZE)
+  print(data)
 
-while True:
-  data = conn.recv(BUFFER_SIZE).decode('utf8').replace("'", '"')
-  parsed_data = json.loads(data)
-  if not data:
-    break
-  # api.update_status(status=data)
-  print(parsed_data['info'])
-  print('\n')
+# while True:
+#   data = conn.recv(BUFFER_SIZE).decode('utf8').replace("'", '"')
+#   parsed_data = json.loads(data)
+#   if not data:
+#     break
+#   # api.update_status(status=data)
+#   print(parsed_data['info'])
+#   print('\n')
 
 conn.close()
 
