@@ -5,19 +5,14 @@
 
 import socket
 import json
-
-
-
-
+# import re
 
 TCP_IP = '35.246.48.167'
 TCP_PORT = 3000
-MESSAGE = bytes("hello", "utf-8")
 BUFFER_SIZE = 1024
 
 conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 conn.connect((TCP_IP, TCP_PORT))
-conn.send(MESSAGE)
 i = 0
 
 while True:
@@ -25,10 +20,12 @@ while True:
   print('cycle', i)
   data = conn.recv(BUFFER_SIZE).decode('utf8').replace("'", '"')
   parsed_data = json.loads(data)
+  # if re.match(r'\\r\\n', data):
+  #   print(data)
   if parsed_data == {'info':'connected'}:
     print('Connected')
-    command = "{'command':'quote'}"
-    conn.sendall(command.encode('utf8'))
+    command = bytes("{'command':'orders'}\r\n", 'utf8')
+    conn.send(command)
     print('Sended\r\n')
   if not data: 
     break
