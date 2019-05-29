@@ -3,29 +3,39 @@
 import socket
 import json
 import re
-from telegram import send_text
+
+def sendCommand():
+  print('send command')
+  command = bytes("{'command':'orders'}\r\n", 'utf8')
+  conn.send(command)
+
+def sendToApi(data):
+  print('SEND to api')
+  print(data)
 
 TCP_IP = '35.246.48.167'
 TCP_PORT = 3000
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 10000
 
 conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 conn.connect((TCP_IP, TCP_PORT))
-i = 0
 
+data_buffer = ''
+commanndIsSent = False
+
+
+# buffer bulk data
 while True:
-  i += 1
-  print('cycle', i)
+
+  if commanndIsSent == False: 
+    sendCommand()
+    commanndIsSent = True
+
   data = conn.recv(BUFFER_SIZE).decode('utf8').replace("'", '"')
-  # parsed_data = json.loads(data)
-  # if parsed_data == {'info':'connected'}:
-    # print('Connected')
-  # command = bytes("{'command':'orders'}\r\n", 'utf8')
-  # conn.send(command)
-  telegram_bot_sendtext(data)
-    # print('Sended\r\n')
-  if not data: 
-    break
-
-conn.close()
-
+  if data.find('"info":"connected"') > -1: continue
+  
+  data_buffer += data
+  
+  if data.find('"info":"orders_sent"') != -1: 
+    sendToApi(data_buffer)
+    data_buffer = ''
