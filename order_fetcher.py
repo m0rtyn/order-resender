@@ -68,4 +68,5 @@ while True:
     previous_data = data_buffer
     data_buffer = ''
     parsed_data = []
+    data = ''
 
