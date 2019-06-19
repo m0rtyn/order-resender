@@ -5,54 +5,50 @@ import json
 from datetime import datetime
 from difflib import ndiff
 from threading import Timer
-
+from re import search
 
 def send_command():
-  command = bytes("{'command':'orders'}\r\n", 'utf8')
-  conn.send(command)
-  # is_timer_active = False
-  # print('TEST')
-  log.write('== Command sended ==\n\n')
-  print('== Command sended ==\n\n')
-
-
+  conn.send(bytes("{'command':'orders'}\r\n", 'utf8'))
 def parse_data(data):
-  data_like_json = '[' + data.replace('\r\n', ',')[0:-1] + ']'
+  data_without_breaks = data.replace('\r\n', ',')[0:-1]
+  data_like_json = '[' + data_without_breaks + ']'
   return json.loads(data_like_json)
-
-
 def compare_data(prev, new):
-  diff = ndiff(prev.splitlines(keepends=True), new.splitlines(keepends=True))
+  diff = ndiff(
+    prev.splitlines(keepends=True),
+    new.splitlines(keepends=True)
+  )
   diff_list = list(diff)
   return diff_list
-
-
 def log_data(diff_list):
   i = 0
-  log.write(datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + "\n\n")
   while i < len(diff_list):
-    log.write(diff_list[i])
+    now_time = datetime.now().strftime("%H:%M")
+    log_string = now_time + '   ' + diff_list[i]
+
+    if search('(\+){1}\s', diff_list[i]) != None:
+      incoming_log.write(log_string)
+    if search('(\-){1}\s', diff_list[i]) != None:
+      outgoing_log.write(log_string)
     i += 1
-  print(*diff_list, sep="")
+  # print(*diff_list, sep="")
 
-
+# inits
 TCP_IP = '35.246.48.167'
 TCP_PORT = 3000
 BUFFER_SIZE = 10000
-
 conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 data_buffer = ''
 previous_data = ''
-log = open('log.txt', 'w')
+incoming_log = open('incoming-log.txt', 'w+')
+outgoing_log = open('outgoing_log.txt', 'w+')
+t = Timer(1.0, print('Timer initialized'))
+
+
 
 
 # start script
 conn.connect((TCP_IP, TCP_PORT))
-
-def init_timer():
-  print('Timer initialized')
-
-t = Timer(2.0, init_timer)
 
 while True:
   if not t.is_alive():
