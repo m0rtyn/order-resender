@@ -41,7 +41,7 @@ conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 data_buffer = ''
 previous_data = ''
 incoming_log = open('incoming-log.txt', 'w+')
-outgoing_log = open('outgoing_log.txt', 'w+')
+outgoing_log = open('outgoing-log.txt', 'w+')
 t = Timer(1.0, print('Timer initialized'))
 
 
